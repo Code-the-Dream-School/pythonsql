@@ -3,7 +3,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 class Employee(Base):
    __tablename__ = 'employees'
-   EmployeeID = Column(Integer, primary_key=True)
+   EmployeeID = Column(Integer, primary_key=True, autoincrement=True)
    LastName = Column(String)
    FirstName = Column(String)
    BirthDate = Column(String)
