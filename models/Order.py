@@ -2,7 +2,7 @@ from models import *
 
 class Order(Base):
    __tablename__ = 'orders'
-   OrderID = Column(Integer, primary_key=True)
+   OrderID = Column(Integer, primary_key=True, autoincrement=True)
    CustomerID = Column(Integer,ForeignKey('customers.CustomerID'), nullable=False)
    EmployeeID = Column(Integer, ForeignKey('employees.EmployeeID'), nullable=False)
    OrderDate = Column(String)

@@ -2,7 +2,7 @@ from models import *
 
 class Supplier(Base):
    __tablename__ = "suppliers"
-   SupplierID = Column(Integer, primary_key=True)
+   SupplierID = Column(Integer, primary_key=True, autoincrement=True)
    SupplierName = Column(String)
    ContactName = Column(String)
    Address = Column(String)

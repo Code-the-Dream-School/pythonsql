@@ -2,7 +2,7 @@ from models import *
 
 class Customer(Base):
    __tablename__ = 'customers' 
-   CustomerID = Column(Integer, primary_key = True)
+   CustomerID = Column(Integer, primary_key = True, autoincrement=True)
    CustomerName = Column(String)
    ContactName = Column(String)
    Address = Column(String)
