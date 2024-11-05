@@ -11,3 +11,4 @@ class Order(Base):
    employee = relationship("Employee", back_populates = "orders")
    orderdetails = relationship("OrderDetail", back_populates = "order")
    shipper = relationship("Shipper", back_populates="orders")
+   products = relationship("Product", secondary="orderdetails", back_populates="orders")

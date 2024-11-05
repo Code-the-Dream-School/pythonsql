@@ -12,3 +12,4 @@ class Product(Base):
    supplier = relationship("Supplier", back_populates= "products")
    category = relationship("Category", back_populates= "products")
    orderdetails = relationship("OrderDetail", back_populates= 'product')
+   orders = relationship("Order", secondary="orderdetails", back_populates="products")
