@@ -58,7 +58,7 @@ Be conscious of the fact that operations, particularly write operations,
 may fail.  So, such operations should occur in a try block, with appropriate
 exception handling.
 
-Here's a tip.  The SQLAlchemy documentation is a little overwhelming.
+Here's a tip.  The SQLAlchemy documentation is basically user hostile.
 But, you can ask ChatGPT or perhaps another AI to explain things to you.
 This approach is often the fastest way to find out what you need to know
 if you are stuck.  **Use it cautiously however.**  Do not let ChatGPT
@@ -66,11 +66,13 @@ write the code you want to write.  If you do that, you won't learn how to
 write it yourself.  You may end up submitting, either in a class or even on the job,
 code you don't understand.  You can't succeed in the software development
 profession if you submit code you don't understand.  For one thing, ChatGPT often
-makes mistakes or misunderstands what you need to do.
+makes mistakes or misunderstands what you need to do.  But you could ask, 
+for example, "How do I
 
 ### Setting up the Session and the Engine, with some Reads
 
-You can check out sqla_example.py.  You will start with some imports, as follows:
+You can check out sqla_example.py.  You will see that it starts
+with some imports, as follows:
 
 ```python
 from sqlalchemy import create_engine, select
@@ -250,4 +252,6 @@ In sqla_example.py, you will see code to add a new OrderDetail to the
 existing order, and then to update it, and then to delete it.
 
 ## A Little Cheatsheet
+
+Please review 
 
