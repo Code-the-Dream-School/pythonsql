@@ -36,13 +36,23 @@ be happy if the withdrawal part succeeded but the deposit part failed
 for some reason.  The transaction
 boundaries ensure that either both operations succeed or both fail.
 
-The session provides boundaries for the transaction.  When the session
-is closed, any uncommitted changes are then committed.  In SQLAlchemy,
-data objects within the session acts as proxies for data in the database,
-representing its current . (In some few cases this representation might 
-be stale.)  Once you have completed the group of related operations,
+The session provides boundaries for the transaction.  When a session
+is created, a transaction is automatically begun at the time
+of the first database access within the session. If a commit succeeds,
+the next database access within the session
+starts a new transaction.  If writes have occurred but have
+not been comitted, they are rolled back when the session is closed,
+but a better approach is to rollback explicitly before closing the session.
+
+In SQLAlchemy, data objects within the session acts as proxies for data in the database,
+representing its current state. Once you have completed the group of related operations,
 you should close the session, and then you would create a new session for
-subsequent work.
+subsequent work.  The data objects within the session can in some cases be
+stale.  For example, they are retrieved, and then there is a rollback that
+releases any locks, and then some other process writes to the corresponding
+record.  In this case, one can do a `session.refresh()` of the object, which
+retrieves it from the database, and which may also lock it, depending on
+the isolation level.
 
 Be conscious of the fact that operations, particularly write operations,
 may fail.  So, such operations should occur in a try block, with appropriate
@@ -58,7 +68,7 @@ code you don't understand.  You can't succeed in the software development
 profession if you submit code you don't understand.  For one thing, ChatGPT often
 makes mistakes or misunderstands what you need to do.
 
-### Setting up the Session and the Engine
+### Setting up the Session and the Engine, with some Reads
 
 You can check out sqla_example.py.  You will start with some imports, as follows:
 
@@ -92,7 +102,7 @@ with Session() as session:
 ```
 
 Ok, that's a start.  We get the first product and print it out.  We make sure to
-close the session.  So, fine, let's run that much.  The product we get returned
+close the session.  The object we get returned
 is an instance of the Product class.  Our print routine can inspect that to figure
 out the column names, and in this way, we can print it out.
 
@@ -138,11 +148,13 @@ There's a bit of magic here.  In the Product model, there is a relationship stat
 connects the product to a single supplier, which is why one can use `Product.supplier`.  One
 can do joins where there is no such relationship statement, but then it is typically
 necessary to do an `on()` to specify the keys that tie the tables together.  Well, that`s
-enough for this session, so we do a `session.close()`.
+enough for this session, so we do a `session.close()`.  The close is important, or you
+get a lot of lingering crap in your process.
 
 ## Relationships and Insert
 
-Let's see what we can learn about the first order.  We'll do this in a new `with` block:
+Let's see what we can learn about the first order.  We'll do this in a new `with` block,
+one that eventually will end with a session close:
 
 ```python
     stmt = select(Order).limit(1)
@@ -164,9 +176,78 @@ orders and products, where the orderdetails table is the association table in th
 middle.  This is why the relationship statement for products in the Order class
 gives that table as the secondary.
 
+## Write Operations
+
 Ok, now we determine that there is something wrong with the order.  It is missing
-one OrderDetail.  We need 26 of product 1.  How do we add this?  As follows:
+one OrderDetail.  We need 26 of product 1.  How do we add this?  Actually, there
+are two models for write operations (insert, delete, update) in the SQLAlchemy ORM.
+The first method writes to the database, followed by a subsequent commit:
 
+```python
+    ...
+    stmt=insert(OrderDetail, [{"ProductID": 1, "Quantity": 26, "OrderID": 12}])
+    # Note that you pass a list, so you can do bulk inserts
+    try: 
+        session.execute(stmt)
+    except Exception as e:
+        session.rollback()
+        print("Error on insert {e}")
+    else:
+        session.commit()
+    ...
 
+    stmt = update(OrderDetail, [{"OrderDetailID": 7, "Quantity": OrderDetail.Quantity + 2}])
+    # adds 2 to the quantity.  Again, one can do bulk updates.
+    ...
 
+    stmt = update(Order).where({"EmployeeID": 14}).values(EmployeeID=23)
+    # reassigns all these orders to a different employee
+    ...
+    
+    stmt = delete(OrderDetail).where({"OrderID": 12})
+    # delete all the OrderDetail records for this order
+```
+In each case, when the statement is executed, the corresponding writes are
+done to the database, but they are not finalized until the commit.  We are,
+in this case, basically bypassing the ORM to do direct Also, when each
+statement is executed, an exception may be thrown, for schema violations, foreign
+key violations, and perhaps other reasons.  As we'll learn, one can add validation
+and pre and post operation functions to a model.  But, when the ORM is bypassed
+for write operations, the model is not used and the validations and pre and post
+operations declared in the model do not run, which can lead to the creation of
+invalid data.
+
+So, we will use the ORM.  This is a little less efficient in the case of updates and deletes
+because the existing record must be retrieved to bring it into the session before
+it can be changed.
+
+```python
+    ...
+    od=OrderDetail(ProductID=1,Quantity=5,order=order)
+    session.add(od)
+    # This creates the object in the session, but does no writes to the
+    # database.  A session.flush() first performs validation and other
+    # stuff as declared in the model, and then if all that succeeds,
+    # it writes it to the database, to be finalized with a commit.
+    # If there are changes to the session that have not been flushed
+    # at the time of commit, they are first flushed and then committed.
+    # Both the flush and the commit may throw execeptions.
+
+    # Suppose the od object is not being created, but was instead
+    # retrieved from the database with a select or similar function.
+    # Then one can update it as follows:
+
+    od.Quantity += 7
+
+    # or one can delete it as follows
+
+    od.delete()
+
+    # Again, these changes are not written to the database until the
+    # session.flush()
+```
+In sqla_example.py, you will see code to add a new OrderDetail to the
+existing order, and then to update it, and then to delete it.
+
+## A Little Cheatsheet
 

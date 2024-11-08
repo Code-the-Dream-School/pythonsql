@@ -17,7 +17,7 @@ def print_records(result_set):
             if att:
                 values.append(str(att))
             else:
-                values.append("")
+                values.append("no_value")
         row = '\t'.join(values)
         print(row)
 
@@ -33,7 +33,7 @@ def print_record(record):
         if att:
             values.append(str(att))
         else:
-            values.append("")
+            values.append("no_value")
     row = '\t'.join(values)
     print(row)
 

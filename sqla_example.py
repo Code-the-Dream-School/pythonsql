@@ -20,73 +20,66 @@ with Session() as session:
     result = session.execute(stmt)
     products_suppliers = result.fetchall()
     print_rows(products_suppliers)
+    session.close()
 
 added_order_detail = 0
 first_order = 0
 with Session() as session:
     stmt = select(Order).limit(1)
-    order = session.scalars(stmt).first()
-    first_order = order.OrderID
+    order = session.scalars(stmt).first() # there ought to be some conditional logic here
+    first_order = order.OrderID # the table might not exist, or it might be empty
     print_record(order)
     print_record(order.customer)
     print_record(order.shipper)
     print_record(order.employee)
     print_records(order.orderdetails)
     print_records(order.products)
+    session.close()
+
+with Session as session:
+    order = session.get(Order,{"OrderID": first_order})
     od = OrderDetail(ProductID=1, Quantity=26, order=order)
+    session.add(od)
     try:
-        session.add(od)
+        session.commit()
     except Exception as e:
-        print("We had an exception on the add: {e}")
+        print("We had an exception on the commit: {e}")
         session.rollback()
     else:
-        try:
-            session.commit()
-        except Exception as e:
-            print("We had an exception on the commit: {e}")
-        else:
-            print_records(order.orderdetails)
-            added_order_detail=od.OrderDetailID
+        print_records(order.orderdetails)
+        added_order_detail=od.OrderDetailID
     session.close()
 
 with Session() as session:
     od_for_update = session.get(OrderDetail, {"OrderDetailID": added_order_detail}, with_for_update=True)
     if od_for_update:
-        print("got here")
-        od_for_update.Quantity=42
+        od_for_update.Quantity += 40
         try:
-            session.flush()
+            session.commit()
         except Exception as e:
-            print("We had an exception on the flush of an update: {e}")
             session.rollback()
+            print("We had an exception on the commit of an update: {e}")
         else:
-            try:
-                session.commit()
-            except Exception as e:
-                print("We had an exception on the commit of an update: {e}")
-            else:
-                print_records(od_for_update.order.orderdetails)
+            print_records(od_for_update.order.orderdetails)
     session.close()
 
 with Session() as session:
     od_for_delete = session.get(OrderDetail, {"OrderDetailID": added_order_detail})
     if od_for_delete:
         session.delete(od_for_delete)
-        try:
-            session.flush()
+        try: 
+            session.commit()
         except Exception as e:
-            print("We had an exception deleting the OrderDetail: {e}")
+            session.rollback()
+            print("We had an exception committing the delete.")
         else:
-            try: 
-                session.commit()
-            except Exception as e:
-                print("We had an exception committing the delete.")
-            else:
-                order_one = session.get(Order, {"OrderID": first_order})
-                if order_one:
-                    print_records(order_one.orderdetails)
-
-
+            order_one = session.get(Order, {"OrderID": first_order})
+            if order_one:
+                print_records(order_one.orderdetails)
+    session.close()
     
+
+
+
 
 
