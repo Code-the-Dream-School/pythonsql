@@ -49,4 +49,8 @@ DELETE FROM OrderDetails WHERE OrderID IN (SELECT OrderID FROM Orders WHERE Cust
 
 What are the other two statements?  Try them out, and then paste them below.
 
+10. Retrieve the list of customer names for customers that have no orders. Use a subquery!
+Paste your SQL statement below.  Bonus: How could this be done using a left join instead
+of a subquery?
+
 

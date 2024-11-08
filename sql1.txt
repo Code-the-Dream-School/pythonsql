@@ -25,17 +25,11 @@ in the results of the query.  Paste your SQL statement below.
 
 
 
-6. Retrieve the list of customer names for customers that have no orders.  There are two ways to do this
-One is to use a subquery, as follows:
-
-SELECT CustomerName FROM Customers WHERE CustomerID NOT IN (SELECT CustomerID FROM ORDERS);
-
-This is a subquery -- we haven't talked about those yet.  But, you can do the same thing with a left
-join by comparing the OrderID column with NULL.  Paste your SQL statement below.
 
 
 
-7. Retrieve the OrderID and ProductName of every order for a product with Tofu in the name.
+
+6. Retrieve the OrderID and ProductName of every order for a product with Tofu in the name.
 Paste your SQL statement below.  You will have to join Orders, OrderDetails, and Products.
 
 
