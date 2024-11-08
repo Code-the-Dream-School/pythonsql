@@ -1,4 +1,7 @@
+from __future__ import annotations
+from sqlalchemy.orm import Mapped, mapped_column
 from models import *
+from models.OrderDetail import OrderDetail
 
 class Order(Base):
    __tablename__ = 'orders'
@@ -11,3 +14,5 @@ class Order(Base):
    employee = relationship("Employee", back_populates = "orders")
    orderdetails = relationship("OrderDetail", back_populates = "order")
    shipper = relationship("Shipper", back_populates="orders")
+   products = relationship('Product', secondary=OrderDetail.__table__, back_populates = 'orders',
+                           overlaps='order,orderdetails,product')

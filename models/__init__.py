@@ -1,7 +1,7 @@
 from sqlalchemy import MetaData, Column, Integer, String, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
-Base = declarative_base()
+from sqlalchemy.orm import relationship, DeclarativeBase
+class Base(DeclarativeBase):
+    pass
 
 __all__ = ['Base', 'Column', 'Integer', 'String', 'relationship', 'ForeignKey']
 

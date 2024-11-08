@@ -13,7 +13,11 @@ def print_records(result_set):
             print('---------------------------')
         values = []
         for a_name in attr_names:
-            values.append(str(getattr(record, a_name)))
+            att = getattr(record, a_name)
+            if att:
+                values.append(str(att))
+            else:
+                values.append("no_value")
         row = '\t'.join(values)
         print(row)
 
@@ -25,11 +29,13 @@ def print_record(record):
     print('---------------------------')
     values = []
     for a_name in attr_names:
-        values.append(str(getattr(record, a_name)))
+        att = getattr(record, a_name)
+        if att:
+            values.append(str(att))
+        else:
+            values.append("no_value")
     row = '\t'.join(values)
     print(row)
-
-
 
 def print_rows(rows):
     first = True
@@ -42,5 +48,5 @@ def print_rows(rows):
             print('------------------------')
         values = []
         for key in keys:
-            values.append(row._mapping[key])
+            values.append(str(row._mapping[key]))
         print('\t'.join(values))
