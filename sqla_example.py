@@ -12,11 +12,12 @@ with Session() as session:
     stmt = select(Product).limit(3) # This just builds the statement.
     products = session.scalars(stmt).all() # Here the statement is executed and the results obtained
     print_records(products)
-    stmt = select(Product.ProductName, Product.Price)
+    stmt = select(Product.ProductName, Product.Price).select_from(Product).limit(5)
     result = session.execute(stmt)
     product_attributes = result.fetchall()
     print_rows(product_attributes)
-    stmt = select(Product.ProductName, Supplier.SupplierName).join(Product.supplier).limit(5)
+    stmt = select(Product.ProductName, Supplier.SupplierName).select_from(Product) \
+    .join(Supplier).limit(5)
     result = session.execute(stmt)
     products_suppliers = result.fetchall()
     print_rows(products_suppliers)
@@ -43,7 +44,7 @@ with Session as session:
     try:
         session.commit()
     except Exception as e:
-        print("We had an exception on the commit: {e}")
+        print(f"We had an exception on the commit: {e}")
         session.rollback()
     else:
         print_records(order.orderdetails)
@@ -51,35 +52,30 @@ with Session as session:
     session.close()
 
 with Session() as session:
-    od_for_update = session.get(OrderDetail, {"OrderDetailID": added_order_detail}, with_for_update=True)
+    od_for_update = session.get(OrderDetail, added_order_detail, with_for_update=True)
     if od_for_update:
         od_for_update.Quantity += 40
         try:
             session.commit()
         except Exception as e:
             session.rollback()
-            print("We had an exception on the commit of an update: {e}")
+            print(f"We had an exception on the commit of an update: {e}")
         else:
             print_records(od_for_update.order.orderdetails)
     session.close()
 
 with Session() as session:
-    od_for_delete = session.get(OrderDetail, {"OrderDetailID": added_order_detail})
+    od_for_delete = session.get(OrderDetail, added_order_detail)
     if od_for_delete:
         session.delete(od_for_delete)
         try: 
             session.commit()
         except Exception as e:
             session.rollback()
-            print("We had an exception committing the delete.")
+            print(f"We had an exception committing the delete. {e}")
         else:
             order_one = session.get(Order, {"OrderID": first_order})
             if order_one:
                 print_records(order_one.orderdetails)
     session.close()
     
-
-
-
-
-
