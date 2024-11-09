@@ -55,13 +55,25 @@ databases and SQL using online exercises.
 
 ## Lesson materials and assignments
 
-[Lesson 1](/lessons/Lesson-1-SQL-Part-1.md)
+[Lesson 1](./lessons/Lesson-1-SQL-Part-1.md)
 
-[Assignment 1](/lessons/Assignment-1-SQL-Part-1.md)
+[Assignment 1](./lessons/Assignment-1-SQL-Part-1.md)
 
-[Lesson 2](/lessons/Lesson-2-SQL-Part-2.md)
+[Lesson 2](./lessons/Lesson-2-SQL-Part-2.md)
 
-[Assignment 2](/lessons/Assignment-2-SQL-Part-2.md)
+[Assignment 2](./lessons/Assignment-2-SQL-Part-2.md)
+
+[Lesson 3](./lessons/Lesson-2-SQL-Part-2.md)
+
+[Assignment 3](./lessons/Assignment-3-SQLAlchemy.md)
+
+[Lesson 4](./lessons/Lesson-4-SQLAlchemy-Part-B.md)
+
+[Assignment 4](./lessons/Assignment-4.md)
+
+[Lesson 5](./lessons/Lesson-5-SQLAlchemy-Part-C.md)
+
+[Assignment 5](./lessons/Assignment-5.md)
 
 ## Lesson 1 Learning Objectives
 
@@ -79,3 +91,29 @@ databases and SQL using online exercises.
 - Learn how the SELECT query is processed: order of operations
 - SQL for adding, modifying, and deleting entries
 - SQL for managing database schema: creating and modifying tables
+
+## Lesson 3 Learning Objectives
+
+- Understand what an ORM is
+- Understand the use of the SQLAlchemy ORM
+- Do some basic CRUD operations using the ORM
+- Understand about sessions within the ORM
+- Understand about transactions and transaction boundaries
+- Practice the use of session.commit() and session.rollback()
+- Understand the difference between data objects within the session,
+data written to the database, and data committed in the database
+- Understand relationships within the models
+
+## Lesson 4 Learning Objectives
+
+- Practice the concepts of Lesson 3
+- Use more complicated operations, such as subquery, having, etc.
+
+## Lesson 5 Learning Objectives
+
+- Understand how to change a model
+- Use validations
+- Use Alembic to manage the database schema
+- Write a test program that verifies compliance with the spec
+- Add new models with relationships and validation
+- Write another test program for the new models

@@ -77,7 +77,7 @@ with some imports, as follows:
 ```python
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
-from models import Product
+from models import Product, Supplier, Order, OrderDetail
 from utils.nice_print import print_record, print_records, print_rows # Provided for your convenience
 ```
 
@@ -125,7 +125,7 @@ the like.  But, in all these cases, one just gets an iterable collection of inst
 What about just getting a couple of columns? That is done as follows:
 
 ```python
-    stmt = select(Product.ProductName, Product.Price).limit(5)
+    stmt = select(Product.ProductName, Product.Price).select_from(Product).limit(5)
     result = session.execute(stmt)
     product_attributes = result.fetchall()
     print_rows(product_attributes)
@@ -139,7 +139,8 @@ the name of the Supplier as well as the name of the product.  As we need informa
 from two tables, that's a join.
 
 ```python
-    stmt = select(Product.ProductName, Supplier.SupplierName).join(Product.supplier).limit(5)
+    stmt = select(Product.ProductName, Supplier.SupplierName).select_from(Product) \
+        .join(Product.supplier).limit(5)
     result = session.execute(stmt)
     products_suppliers = result.fetchall()
     print_rows(products_suppliers)
@@ -148,8 +149,9 @@ from two tables, that's a join.
 
 There's a bit of magic here.  In the Product model, there is a relationship statement that
 connects the product to a single supplier, which is why one can use `Product.supplier`.  One
-can do joins where there is no such relationship statement, but then it is typically
-necessary to do an `on()` to specify the keys that tie the tables together.  Well, that`s
+can do joins where there is no such relationship statement, but then it is
+necessary to specify the join logic in the join(), specifying
+the keys that tie the tables together.  Well, that`s
 enough for this session, so we do a `session.close()`.  The close is important, or you
 get a lot of lingering crap in your process.
 
@@ -168,6 +170,8 @@ one that eventually will end with a session close:
     print_records(order.orderdetails)
     print_records(order.products)
 ```
+The code above ought to check whether the order record was actually returned.
+The order table might be empty or absent, or a database error might occur.
 
 Here we are making heavy use of the relationships defined in the model.  We see
 that there are one-to-many relationships between each customer and their orders,
@@ -211,7 +215,8 @@ The first method writes to the database, followed by a subsequent commit:
 ```
 In each case, when the statement is executed, the corresponding writes are
 done to the database, but they are not finalized until the commit.  We are,
-in this case, basically bypassing the ORM to do direct Also, when each
+in this case, basically bypassing the ORM to do direct changes to database
+content.  Also, when each
 statement is executed, an exception may be thrown, for schema violations, foreign
 key violations, and perhaps other reasons.  As we'll learn, one can add validation
 and pre and post operation functions to a model.  But, when the ORM is bypassed
@@ -227,31 +232,37 @@ it can be changed.
     ...
     od=OrderDetail(ProductID=1,Quantity=5,order=order)
     session.add(od)
-    # This creates the object in the session, but does no writes to the
-    # database.  A session.flush() first performs validation and other
-    # stuff as declared in the model, and then if all that succeeds,
-    # it writes it to the database, to be finalized with a commit.
-    # If there are changes to the session that have not been flushed
-    # at the time of commit, they are first flushed and then committed.
-    # Both the flush and the commit may throw execeptions.
+```
+This creates the object in the session, but does no writes to the
+database.  A session.flush() first performs validation and other
+stuff as declared in the model, and then if all that succeeds,
+it writes it to the database, to be finalized with a commit.
+If there are changes to the session that have not been flushed
+at the time of commit, they are first flushed and then committed.
+Both the flush and the commit may throw execeptions.
 
-    # Suppose the od object is not being created, but was instead
-    # retrieved from the database with a select or similar function.
-    # Then one can update it as follows:
-
+Suppose the od object is not being created, but was instead
+retrieved from the database with a select or similar function.
+Then one can update it as follows:
+```python
     od.Quantity += 7
-
-    # or one can delete it as follows
-
+```
+or one can delete it as follows
+```python
     od.delete()
-
-    # Again, these changes are not written to the database until the
-    # session.flush()
+```
+Again, these changes are not written to the database until the
+```python
+    session.flush()
 ```
 In sqla_example.py, you will see code to add a new OrderDetail to the
-existing order, and then to update it, and then to delete it.
+existing order, and then to update the SQLDetail, and then to delete it.
 
 ## A Little Cheatsheet
 
-Please review 
+Please review [this cheatsheet]('..\sqlalchemy_cheatsheet.md).  Given the
+very difficult documentation of sqlalchemy, I think you'll want to hang
+on to this one.  This is most of what you ever need to know.
 
+This lesson is intended to explain sqlalchemy, and it's a lot of difficult
+content, so the assignment itself will be relatively shord.

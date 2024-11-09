@@ -17,11 +17,11 @@ that should be handled.
 
 For updates and deletes, one first gets the object into the session, and then
 one modifies or deletes it.  Again, the writes to the database don't actually
-occur until flush().  So, for update, one could do:
+occur until session.flush().  So, for update, one could do:
 ```python
 from models import Employee
 employee = session.get(Employee,{'EmployeeID': 273})
-employee.LastName = 'Fujimoto'
+employee.LastName = 'Fujimoto' # this updates the object within the session
 ```
 Or, to update a group of entries, one might do:
 ```python
@@ -33,29 +33,32 @@ for product in products:
 ```
 For delete, having retrieved the Product object product, one does:
 ```python
-product.delete()
+product.delete() # takes effect with session.flush()
 ```
 ## Be Careful to Finish the Transaction!
 
 You can write to the database using the ORM with a session.flush().
 You can also bypass the ORM with insert(), update(), or delete(). If
-you do any of these, it is important to do either session.commit() or
+you do session.flush() or any of these latter operations, 
+it is important to do either session.commit() or
 session.rollback() before closing the session (and of course, you always
-need to call session.close() at some point).  If changes exist in session
+need to call session.close() for every session).  If changes exist in session
 objects that haven't been committed or rolled back at session.close(),
 the session.close() triggers a rollback automatically, but this is
 bad style.  You should do the session.rollback() explicitly.  If
 you have done writes that bypass the ORM it is all the more important
-to do the session.rollback(), as it may not occur automatically.
+to do the session.rollback(), as it does not occur automatically.
 
 ## Be Careful of Stale References!
 
 If you get an object in the session, other processes may write to the
 corresponding database record, so the object as stored in the session may
 be stale.  One can lock the record explicitly by including a with_for_update()
-on the get() or select() that retrieves it.  And, the record is locked
-for the period of the transaction if the database isolation level is
-Serializable (as it is in our exercises).  But session.rollback() and session.commit()
+if the database isolation level is
+Serializable 
+(as it is in our exercises) for the period of the transaction. (We'll have
+an aside on SQL database isolation levels.)
+Session.rollback() and session.commit()
 release all such locks, so then the object in the session could be stale.
 If you have such an object, say `product`, one can do `session.refresh(product)`
 to get the latest version.  If the isolation level is Serializable, the
@@ -63,7 +66,12 @@ refresh locks the record, but if not, one can use with_for_update() on the
 refresh.  Another approach for refreshing the object or objects
 is to repeat the select() or get() that retrieves it/them.
 
-## Two Forms of Select()
+## Get() and Two Forms of Select()
+
+You can retrieve a single object from the database by primary key using
+```python
+session.get(Product,5)
+```
 
 You can create a select() statement that gets a list of model objects,
 or one that gets a list of `row` objects.  This sequence:
@@ -85,7 +93,7 @@ a `dict` with the keys and values for that row.
 As always, in this series of lessons, there are other ways
 to accomplish the same ends.  This form of select() is used if
 you want to do a join, if you want a subset of attributes, or
-if you want to label the columns.  You specify a list of attributes as follows:
+if you want to select particular columns, you specify a list of attributes as follows:
 ```python
 stmt = select(Employee.FirstName, Employee.LastName).select_from(Employee)
 ```
@@ -184,4 +192,5 @@ print_rows(rows)
 ```
 The results of a subquery can be passed to select_from(), any_(), all_(), or exists().
 
-If you need any them, you import func, any_, all_, and_, or_, not_ or exists from sqlalchemy.
+If you need any the following, you import func, any_, all_, and_, or_, not_
+or exists from sqlalchemy.
