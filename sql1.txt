@@ -1,21 +1,21 @@
 Hint: So that you can understand the schema, you may want to just do a simple select statement on each
-table.  For example, to see the schema for the Products table, you could do:
+table.  For example, to see the schema for the products table, you could do:
 
-SELECT * FROM Products LIMIT 5;
+SELECT * FROM products LIMIT 5;
 
-1. Use an SQL SELECT statement to retrieve the first 10 rows of the Customer table, ordered by CustomerName.
-Paste your SQL statement below:
+1. Use an SQL SELECT statement to retrieve the first 10 rows of the customer table, ordered by
+customer_name.  Paste your SQL statement below:
 
 
-2. Use an SQL Select statement to retrieve the names and prices for all products that cost less than $20.
-Paste your SQL statement below:
+2. Use an SQL Select statement to retrieve the names and prices for all products that 
+cost less than $20.  Paste your SQL statement below:
 
 
 3. Retrieve all employees whose last name starts with C.  Paste your SQL statement below:
 
 
 4. Retrieve the order ID and customer name for all orders where the customer name starts with A.
-Here you will have to do a join of the Orders table and the Customers table.  Paste your SQL
+Here you will have to do a join of the orders table and the customers table.  Paste your SQL
 statement below.
 
 
@@ -26,11 +26,8 @@ in the results of the query.  Paste your SQL statement below.
 
 
 
-
-
-
-6. Retrieve the OrderID and ProductName of every order for a product with Tofu in the name.
-Paste your SQL statement below.  You will have to join Orders, OrderDetails, and Products.
+6. Retrieve the order_id and product_name of every order for a product with Fish in the name.
+Paste your SQL statement below.  You will have to join orders, line_items, and products.
 
 
 

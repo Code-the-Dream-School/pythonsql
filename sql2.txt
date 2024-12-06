@@ -1,56 +1,55 @@
-1. Retrieve the ProductName and TotalCount for all orders for a product.  Here you will need
-to join the OrderDetails table with the product table.  For TotalCount, you will Use
-SUM(Quantity) AS TotalCount .  Order by product name.
+1. Retrieve the product_name and TotalCount for all orders for a product.  Here you will need
+to join the line_items table with the product table.  For TotalCount, you will Use
+SUM(quantity) AS TotalCount .  Order by product name.
 You will need to group by product ID.  Paste your SQL statement below.
 
 
-2. Retrieve the customer name and OrderDetailsID for all the OrderDetails for each customer,
-ordered by customer name. Paste your SQL statement below. You will have to join the Customers
-table with the Orders table, and the Orders table with the OrderDetails table, 
-because the Orders table is the one that ties the Customer table to the OrderDetails table.
+2. Retrieve the customer name and line_item_id for all the line_items for each customer,
+ordered by customer name. Paste your SQL statement below. You will have to join the customers
+table with the orders table, and the orders table with the line_items table, 
+because the orders table is the one that ties the customer table to the line_items table.
 
 
-3. Extend the previous query to join the Products table.  You are now joining the Customers, Orders,
-OrderDetails, and Products tables.  The result of your query should include the
+3. Extend the previous query to join the products table.  You are now joining the customers, orders,
+line_items, and products tables.  The result of your query should include the
 customer name, the product name, and the total quantity of that product ordered.  Note that a customer
 may have ordered the same product in several different orders.  So the total quantity is
-SUM(Quantity) AS TotalQuantity and you must GROUP BY CustomerID, ProductID.  Paste your
+SUM(Quantity) AS TotalQuantity and you must GROUP BY customer_id, product_id.  Paste your
 SQL statement below.
 
 
 
 4. Extend the previous query to give the total price as well as the customer name, product name, 
 and total quantity.  Here you will have
-(SUM(Quantity) * Price) AS TotalPrice.  Paste your SQL statement below.
+(SUM(quantity) * price) AS TotalPrice.  Paste your SQL statement below.
 
 
-5. Add a new Order to the Orders table.  You will have to specify the ID of an existing customer
+5. Add a new order to the orders table.  You will have to specify the ID of an existing customer
 to satisfy the foreign key constraint.  You will also have to specify the ID of an existing
 employee.  Paste your SQL statement below.
 
 
-6. Add three OrderDetails.  These should specify the ID of the new Order you just created.  For each,
+6. Add three line_items.  These should specify the ID of the new order you just created.  For each,
 you will have to specify the ID of an existing product.  Paste your SQL statement below.
 
 
-7.  Delete the third of the OrderDetails you just added.  Paste your SQL statement below.
+7.  Delete the third of the line_items you just added.  Paste your SQL statement below.
 
 
 
-8. Update the Products table, so that every product with a price less than $20 has the price increased by
+8. Update the products table, so that every product with a price less than $20 has the price increased by
 0.50.  Paste your SQL statement below.
 
 
-9.  Try to delete Customer 76.  What happens? What would you have to delete in order to delete
+9.  Try to delete customer 76.  What happens? What would you have to delete in order to delete
 this customer?  (Hint: It's not just orders.)   There are three statements to be performed, in order
-to delete this customer.  The first is
+to delete this customer.  The first (note the subquery!) is:
 
-DELETE FROM OrderDetails WHERE OrderID IN (SELECT OrderID FROM Orders WHERE CustomerID=76);
+DELETE FROM line_items WHERE order_id IN (SELECT order_id FROM orders WHERE customer_id=76);
 
 What are the other two statements?  Try them out, and then paste them below.
 
-10. Retrieve the list of customer names for customers that have no orders. Use a subquery!
-Paste your SQL statement below.  Bonus: How could this be done using a left join instead
-of a subquery?
+10. Retrieve the list of customer names for customers that have no orders.  Use a subquery!
+Paste your sql statement below.
 
 
