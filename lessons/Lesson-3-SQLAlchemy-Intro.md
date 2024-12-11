@@ -174,46 +174,16 @@ gives that table as the secondary.
 ## Write Operations
 
 Ok, now we determine that there is something wrong with the order.  It is missing
-one Lineitem.  We need 26 of product 1.  How do we add this?  Actually, there
-are two models for write operations (insert, delete, update) in the SQLAlchemy ORM.
-The first method writes to the database, followed by a subsequent commit:
+one Lineitem.  We need 26 of product 1.  How do we add this?  Sqlalchemy provides two ways of doing CRUD operations.  You can do them with the ORM, or you can access the database directly.  In this introduction, the ORM is always used.  One advantage of this approach is that, when write operations are performed, the data can be validated, and in some cases transformed, by code that you add to the model, before it is written to the database, so as to avoid invalid entries.
 
-```python
-    ...
-    li_table = Listitem.__table__
-    stmt=insert(li_table).values([{"product_id": 1, "quantity": 26, "order_id": 12}])
-    # Note that you pass a list, so you can do bulk inserts
-    try: 
-        session.execute(stmt)
-        session.commit()
-    except Exception as e:
-        session.rollback()
-        print(f"Error on insert {e}")
-    ...
+For these reasons, we will use the ORM throughout, and you should do likewise.  Inserting an entry into the database involves several steps:
 
-    stmt = update(li_table).where(li_table.c.order_id == 7).values({"quantity": li_table.c.quantity + 2})
-    # adds 2 to the quantity.
-    ...
-    order_table = Order.__table__
-    stmt = update(order_table).where(order_table.c.employee_id == 14).values({"employee_id": 7})
-    # reassigns all these orders to a different employee
-    ...
-    
-    stmt = delete(li_table).where(li_table.c.order_id == 12)
-    # delete all the Lineitem records for this order
-```
-In each case, when the statement is executed, the corresponding writes are
-done to the database, but they are not finalized until the commit.  
-Note, however:  The Order and Listitem models are only used to resolve the
-corresponding tables.  When we use this approach, we are bypassing the ORM to do direct changes to database content.  Also, when each
-statement is executed, an exception may be thrown, for schema violations, foreign
-key violations, and perhaps other reasons.  As we'll learn, one can add validation
-and pre and post operation functions to a model.  But, when the ORM is bypassed
-for write operations, the model is not used and the validations and pre and post
-operations that are declared in the model do not run, which can lead to the creation of
-invalid data.
+1. Create an instance of the model object.
+2. Add the instance to the session.
+3. Flush the session.  This writes any new or changed entries in the session to the database.
+4. Commit the transaction.
 
-So, we will instead use the ORM throughout, and you should do likewise.  This may a little less efficient in the case of updates and deletes because the existing record must be retrieved to bring it into the session before it can be changed.
+Each of these steps might throw an exception.  For example, the create may throw an exception if the object does not pass the validation methods in the model.  Or, the write may fail if the entry is not compliant with the database schema.
 
 ```python
     ...
@@ -240,15 +210,15 @@ retrieved from the database with a `session.get()` or similar function.
 Then one can update it as follows:
 ```python
     li.quantity += 7
+    # followed by a session.flush() and a session.commit().
 ```
 or one can delete it as follows
 ```python
     li.delete()
 ```
-Again, these changes are not written to the database until the `session.flush()`.
+Again, these changes are not written to the database until the `session.flush()`.  If a model object in the session is updated, an exception may be thrown if the changes don't pass validation.
 
-In sqla_example.py, you will see code to add a new Listitem to the
-existing order, and then to update the quantity, and then to delete it.
+In sqla_example.py, you will see code to add a new Listitem to the existing order, and then to update the quantity, and then to delete it.  Pleae review that code to see how the process works.
 
 ## A Little Cheatsheet
 
